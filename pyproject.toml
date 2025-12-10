@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smart-cleaner"
+version = "0.1.0"
+description = "AI-powered data cleaning platform with intelligent imputation strategies"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Smart Cleaner Team"}
+]
+keywords = ["data-cleaning", "machine-learning", "data-science", "ai", "imputation", "eda"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "anthropic>=0.34.0",
+]
+
+[project.optional-dependencies]
+ml = [
+    "scikit-learn>=1.3.0",
+]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
+all = [
+    "scikit-learn>=1.3.0",
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/smart-cleaner"
+Repository = "https://github.com/yourusername/smart-cleaner"
+Documentation = "https://github.com/yourusername/smart-cleaner#readme"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["smart_cleaner*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
