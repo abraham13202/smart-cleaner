@@ -1,31 +1,39 @@
 """
 Smart Cleaner - AI-Powered Data Cleaning & Analysis Platform
 
-A comprehensive data cleaning and analysis platform that replaces manual data analysis.
-Includes AI-powered recommendations, feature engineering, encoding, scaling, and ML-ready exports.
+A comprehensive data cleaning and analysis platform using local LLMs (Ollama).
+100% free, 100% private - your data never leaves your machine.
 
 Example usage:
     from smart_cleaner import AutoPreprocessor, PipelineConfig
 
-    # Full automatic preprocessing
+    # Full automatic preprocessing with Ollama
     config = PipelineConfig(
-        gemini_api_key="your-key",  # Or set GEMINI_API_KEY env variable
-        target_column="disease",
         use_ai_recommendations=True,
+        ai_provider="ollama",
+        ollama_model="llama3.2",
+        target_column="salary",
     )
     preprocessor = AutoPreprocessor(config)
     cleaned_df, report = preprocessor.process(df)
 
-    # For comprehensive analysis pipeline
-    from smart_cleaner import (
-        FeatureEngineer,
-        FeatureEncoder,
-        FeatureScaler,
-        FeatureSelector,
-        AdvancedEDA,
-        DataDictionary,
-        MLReadyExport,
-    )
+    # Data profiling
+    from smart_cleaner import DataProfiler
+    profiler = DataProfiler()
+    profile = profiler.profile(df)
+    profiler.print_summary(profile)
+
+    # Batch processing
+    from smart_cleaner import BatchProcessor
+    processor = BatchProcessor(config)
+    report = processor.process_directory("data/raw/", "data/cleaned/")
+
+    # Validation rules
+    from smart_cleaner import DataValidator
+    validator = DataValidator()
+    validator.add_not_null("id")
+    validator.add_range("age", min_val=0, max_val=150)
+    report = validator.validate(df)
 """
 
 from .core import (
@@ -58,10 +66,16 @@ from .core import (
     MulticollinearityChecker,
     ClassBalancer,
     FinalQualityChecker,
+    # New modules
+    DataProfiler,
+    BatchProcessor,
+    DataValidator,
+    AuditTrail,
+    AuditedDataFrame,
 )
-from .utils import Config
+from .utils import Config, YAMLPipelineConfig, load_config
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 __author__ = "Smart Cleaner Team"
 
 __all__ = [
@@ -96,4 +110,12 @@ __all__ = [
     "MulticollinearityChecker",
     "ClassBalancer",
     "FinalQualityChecker",
+    # New modules
+    "DataProfiler",
+    "BatchProcessor",
+    "DataValidator",
+    "AuditTrail",
+    "AuditedDataFrame",
+    "YAMLPipelineConfig",
+    "load_config",
 ]

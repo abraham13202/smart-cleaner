@@ -40,6 +40,12 @@ from .multicollinearity_checker import MulticollinearityChecker
 from .class_balancer import ClassBalancer
 from .final_quality_checker import FinalQualityChecker
 
+# New v0.5 modules
+from .profiler import DataProfiler
+from .batch_processor import BatchProcessor
+from .validators import DataValidator
+from .audit import AuditTrail, AuditedDataFrame
+
 __all__ = [
     "AIAdvisor",
     "DataCleaner",
@@ -76,4 +82,10 @@ __all__ = [
     "MulticollinearityChecker",
     "ClassBalancer",
     "FinalQualityChecker",
+    # New v0.5 modules
+    "DataProfiler",
+    "BatchProcessor",
+    "DataValidator",
+    "AuditTrail",
+    "AuditedDataFrame",
 ]

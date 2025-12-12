@@ -1,68 +1,106 @@
 [build-system]
-requires = ["setuptools>=68.0.0", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "smart-cleaner"
-version = "0.1.0"
-description = "AI-powered data cleaning platform with intelligent imputation strategies"
+version = "0.5.0"
+description = "AI-Powered Data Cleaning Tool using Local LLMs (Ollama)"
 readme = "README.md"
-requires-python = ">=3.8"
 license = {text = "MIT"}
+requires-python = ">=3.9"
 authors = [
     {name = "Smart Cleaner Team"}
 ]
-keywords = ["data-cleaning", "machine-learning", "data-science", "ai", "imputation", "eda"]
+keywords = [
+    "data-cleaning",
+    "machine-learning",
+    "data-preprocessing",
+    "ollama",
+    "ai",
+    "imputation",
+    "data-quality",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Scientific/Engineering :: Information Analysis",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-
 dependencies = [
     "pandas>=2.0.0",
     "numpy>=1.24.0",
-    "anthropic>=0.34.0",
+    "ollama>=0.3.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]
-ml = [
-    "scikit-learn>=1.3.0",
+web = [
+    "streamlit>=1.29.0",
+    "plotly>=5.18.0",
+]
+export = [
+    "openpyxl>=3.1.0",
+    "pyarrow>=14.0.0",
 ]
 dev = [
     "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
     "black>=23.0.0",
     "flake8>=6.0.0",
+    "isort>=5.12.0",
 ]
 all = [
-    "scikit-learn>=1.3.0",
-    "pytest>=7.4.0",
-    "black>=23.0.0",
-    "flake8>=6.0.0",
+    "streamlit>=1.29.0",
+    "plotly>=5.18.0",
+    "openpyxl>=3.1.0",
+    "pyarrow>=14.0.0",
+    "python-docx>=0.8.11",
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/smart-cleaner"
-Repository = "https://github.com/yourusername/smart-cleaner"
-Documentation = "https://github.com/yourusername/smart-cleaner#readme"
+Homepage = "https://github.com/abraham13202/smart-cleaner"
+Documentation = "https://github.com/abraham13202/smart-cleaner#readme"
+Repository = "https://github.com/abraham13202/smart-cleaner"
+Issues = "https://github.com/abraham13202/smart-cleaner/issues"
+
+[project.scripts]
+smart-cleaner = "universal_data_pipeline:main"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["smart_cleaner*"]
+exclude = ["tests", "tests.*"]
 
 [tool.black]
-line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.venv
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = [".git", ".venv", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --tb=short"

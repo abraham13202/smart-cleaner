@@ -1,1 +1,1 @@
-"""Tests for Smart Cleaner package."""
+"""Tests for Smart Cleaner."""

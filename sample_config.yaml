@@ -1,0 +1,66 @@
+# Smart Cleaner Pipeline Configuration
+# Example configuration file for data cleaning pipeline
+
+pipeline:
+  name: "Employee Data Cleaning Pipeline"
+  version: "1.0"
+
+ai:
+  enabled: true
+  provider: ollama
+  model: llama3.2
+
+processing:
+  handle_missing: true
+  handle_duplicates: true
+  detect_outliers: true
+  target_column: salary
+
+columns:
+  - name: age
+    strategy: cohort_mean
+    cohort_columns: [gender, department]
+    cohort_bins:
+      age: [0, 30, 40, 50, 100]
+
+  - name: salary
+    strategy: median
+
+  - name: department
+    strategy: mode
+
+  - name: years_experience
+    strategy: cohort_mean
+    cohort_columns: [department]
+
+  - name: performance_score
+    strategy: mean
+
+validation:
+  - column: age
+    rule_type: range
+    params:
+      min: 18
+      max: 100
+    action: warn
+
+  - column: salary
+    rule_type: range
+    params:
+      min: 0
+    action: warn
+
+  - column: employee_id
+    rule_type: unique
+    action: warn
+
+  - column: gender
+    rule_type: values
+    params:
+      allowed: [M, F]
+    action: warn
+
+export:
+  format: csv
+  include_report: true
+  output_dir: output

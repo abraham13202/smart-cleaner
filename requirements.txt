@@ -1,16 +1,31 @@
 # Core dependencies
 pandas>=2.0.0
 numpy>=1.24.0
-anthropic>=0.34.0
 
-# Optional dependencies for advanced features
+# AI/ML dependencies
+ollama>=0.3.0  # For local LLM-powered AI recommendations (FREE!)
 scikit-learn>=1.3.0  # For KNN imputation and advanced ML features
+
+# Visualization
 matplotlib>=3.7.0  # For data visualizations
 seaborn>=0.12.0  # For enhanced visualizations
-python-docx>=0.8.11  # For Word document report generation
-ollama>=0.3.0  # For local LLM-powered AI recommendations (FREE!)
+plotly>=5.18.0  # For interactive web visualizations
 
-# Development dependencies (optional)
+# Web UI
+streamlit>=1.29.0  # For sophisticated web interface
+
+# Configuration & Export
+PyYAML>=6.0  # For YAML config file support
+openpyxl>=3.1.0  # For Excel export
+pyarrow>=14.0.0  # For Parquet export
+
+# Optional dependencies
+python-docx>=0.8.11  # For Word document report generation
+anthropic>=0.34.0  # For Claude API (optional alternative to Ollama)
+
+# Development dependencies
 pytest>=7.4.0
+pytest-cov>=4.1.0
 black>=23.0.0
 flake8>=6.0.0
+isort>=5.12.0
