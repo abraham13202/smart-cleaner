@@ -75,66 +75,114 @@ class BackwardFillImputation(ImputationStrategy):
 
 class CohortMeanImputation(ImputationStrategy):
     """
-    Impute missing values based on cohort means.
+    Context-aware imputation using cohort means.
 
-    Example: For BMI missing values, use mean BMI of people in same age group.
+    SMART IMPUTATION: Instead of using overall mean, uses mean of similar groups.
+
+    Examples:
+    - BMI missing for 34-year-old female → mean BMI of females aged 30-40
+    - Salary missing for Senior Engineer in NYC → mean salary of Senior Engineers in NYC
+    - Price missing for 2BR apartment in Manhattan → mean price of 2BR in Manhattan
+
+    Supports:
+    - Single cohort column (e.g., gender)
+    - Multiple cohort columns (e.g., gender + age_group)
+    - Numeric columns with binning (e.g., age → age groups)
     """
 
     def impute(self, df: pd.DataFrame, column: str, **kwargs) -> pd.Series:
         """
-        Impute with cohort-based mean.
+        Impute with cohort-based mean (CONTEXT-AWARE).
 
         Args:
             df: DataFrame
             column: Column to impute
-            cohort_column: Column to use for cohort grouping (e.g., 'age')
-            cohort_bins: List of bin edges for cohort groups
-                         e.g., [0, 20, 30, 40, 50, 100] for age groups
+            cohort_columns: List of columns to use for grouping, e.g., ['gender', 'age']
+            cohort_column: Single column (legacy support)
+            cohort_bins: Dict mapping column names to bin edges
+                         e.g., {'age': [0, 30, 50, 70, 100]}
 
         Returns:
             Series with imputed values
         """
-        cohort_column = kwargs.get('cohort_column')
-        cohort_bins = kwargs.get('cohort_bins')
+        # Support both single column (legacy) and multiple columns
+        cohort_columns = kwargs.get('cohort_columns', [])
+        if not cohort_columns:
+            single_col = kwargs.get('cohort_column')
+            if single_col:
+                cohort_columns = [single_col]
 
-        if not cohort_column or cohort_column not in df.columns:
+        cohort_bins = kwargs.get('cohort_bins', {})
+
+        # Validate cohort columns exist
+        valid_cohort_cols = [c for c in cohort_columns if c in df.columns]
+
+        if not valid_cohort_cols:
             # Fallback to simple mean
             return MeanImputation().impute(df, column)
 
+        # Create a working copy to avoid modifying original
+        df_work = df.copy()
         result = df[column].copy()
+        temp_cols = []
 
-        if cohort_bins:
-            # Create cohort groups based on bins
-            cohort_labels = [f"{cohort_bins[i]}-{cohort_bins[i+1]}"
-                           for i in range(len(cohort_bins) - 1)]
-            df['_temp_cohort'] = pd.cut(
-                df[cohort_column],
-                bins=cohort_bins,
-                labels=cohort_labels,
-                include_lowest=True
-            )
+        # Process each cohort column
+        groupby_cols = []
+        for cohort_col in valid_cohort_cols:
+            if cohort_col in cohort_bins:
+                # Bin the numeric column
+                bins = cohort_bins[cohort_col]
+                temp_col = f'_cohort_{cohort_col}'
+                temp_cols.append(temp_col)
 
-            # Calculate mean for each cohort
-            cohort_means = df.groupby('_temp_cohort')[column].mean()
+                labels = [f"{bins[i]}-{bins[i+1]}" for i in range(len(bins) - 1)]
+                df_work[temp_col] = pd.cut(
+                    df_work[cohort_col],
+                    bins=bins,
+                    labels=labels,
+                    include_lowest=True
+                )
+                groupby_cols.append(temp_col)
+            else:
+                # Use column directly (categorical)
+                groupby_cols.append(cohort_col)
+
+        # Calculate mean for each cohort combination
+        try:
+            cohort_means = df_work.groupby(groupby_cols, observed=True)[column].mean()
 
             # Impute based on cohort
-            for cohort_value in cohort_means.index:
-                mask = (df['_temp_cohort'] == cohort_value) & (df[column].isna())
-                result.loc[mask] = cohort_means[cohort_value]
+            for idx, row in df_work[df[column].isna()].iterrows():
+                try:
+                    # Get the cohort key for this row
+                    if len(groupby_cols) == 1:
+                        cohort_key = row[groupby_cols[0]]
+                    else:
+                        cohort_key = tuple(row[col] for col in groupby_cols)
 
-            # Clean up temporary column
-            df.drop('_temp_cohort', axis=1, inplace=True)
-        else:
-            # Use cohort column values directly (for categorical cohorts)
-            cohort_means = df.groupby(cohort_column)[column].mean()
+                    # Look up the cohort mean
+                    if cohort_key in cohort_means.index:
+                        result.loc[idx] = cohort_means[cohort_key]
+                    elif len(groupby_cols) == 1 and pd.notna(cohort_key):
+                        # Try direct lookup for single column
+                        if cohort_key in cohort_means.index:
+                            result.loc[idx] = cohort_means[cohort_key]
+                except (KeyError, TypeError):
+                    # This cohort combination doesn't exist, will use fallback
+                    pass
 
-            for cohort_value in cohort_means.index:
-                mask = (df[cohort_column] == cohort_value) & (df[column].isna())
-                result.loc[mask] = cohort_means[cohort_value]
+        except Exception as e:
+            # If groupby fails, fall back to simple imputation
+            print(f"    Cohort grouping failed: {e}. Using simple mean.")
+            return MeanImputation().impute(df, column)
 
         # Fill any remaining NaN with overall mean (edge cases)
         if result.isna().any():
-            result.fillna(df[column].mean(), inplace=True)
+            overall_mean = df[column].mean()
+            remaining = result.isna().sum()
+            result.fillna(overall_mean, inplace=True)
+            if remaining > 0:
+                print(f"    {remaining} values filled with overall mean (no matching cohort)")
 
         return result
 
