@@ -5,9 +5,11 @@ Allows users to define cleaning pipelines in YAML format.
 
 import yaml
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 from dataclasses import dataclass, field, asdict
-from .config import PipelineConfig
+
+if TYPE_CHECKING:
+    from ..core.auto_pipeline import PipelineConfig
 
 
 @dataclass
@@ -176,8 +178,10 @@ class YAMLPipelineConfig:
 
         return config
 
-    def to_pipeline_config(self) -> PipelineConfig:
+    def to_pipeline_config(self):
         """Convert to PipelineConfig for use with AutoPreprocessor."""
+        # Import here to avoid circular imports
+        from ..core.auto_pipeline import PipelineConfig
         return PipelineConfig(
             use_ai_recommendations=self.ai_enabled,
             ai_provider=self.ai_provider,

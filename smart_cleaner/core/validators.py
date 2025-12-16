@@ -6,7 +6,7 @@ Define and apply data quality validation rules.
 import re
 import pandas as pd
 import numpy as np
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod

@@ -12,8 +12,7 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 import json
 
-from .auto_pipeline import AutoPreprocessor
-from ..utils.config import PipelineConfig
+from .auto_pipeline import AutoPreprocessor, PipelineConfig
 from ..utils.progress import ProgressBar, StepProgress
 
 
